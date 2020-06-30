@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public class Node : IHeapItem<Node>
+public class Node : IComparable<Node>
 {
     public Vector2Int gridPosition;
     public int gCost = 0; // distance from starting node
@@ -10,7 +11,6 @@ public class Node : IHeapItem<Node>
     public Node parentNode;
     public GameObject displayCosts;
 
-    private int _heapIndex;
 
     public Node(Vector2Int gridPosition)
     {
@@ -28,17 +28,6 @@ public class Node : IHeapItem<Node>
         }
     }
 
-    public int HeapIndex
-    {
-        get
-        {
-            return _heapIndex;
-        }
-        set
-        {
-            _heapIndex = value;
-        }
-    }
 
     public int CompareTo(Node nodeToCompare)
     {
@@ -47,6 +36,6 @@ public class Node : IHeapItem<Node>
         {
             compare = hCost.CompareTo(nodeToCompare.hCost);
         }
-        return -compare;
+        return compare;
     }
 }

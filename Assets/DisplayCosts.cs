@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class DisplayCosts : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI GCost;
-    [SerializeField] private TextMeshProUGUI HCost;
-    [SerializeField] private TextMeshProUGUI FCost;
+    [SerializeField] private TextMeshProUGUI GCost=null;
+    [SerializeField] private TextMeshProUGUI HCost=null;
+    [SerializeField] private TextMeshProUGUI FCost=null;
 
     public void SetGCost(string gCost)
     {

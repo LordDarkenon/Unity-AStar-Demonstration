@@ -17,9 +17,9 @@ public class AStar : MonoBehaviour
     private int originX;
     private int originY;
     private Camera mainCamera;
-    [SerializeField] private Grid grid;
-    [SerializeField] private Tilemap pathTilemap;
-    [SerializeField] private Tilemap directionTilemap;
+    [SerializeField] private Grid grid = null;
+    [SerializeField] private Tilemap pathTilemap = null;
+    [SerializeField] private Tilemap directionTilemap = null;
     [SerializeField] private TileBase startTile = null;
     [SerializeField] private TileBase finishTile = null;
     [SerializeField] private TileBase obstacleTile = null;
@@ -35,14 +35,12 @@ public class AStar : MonoBehaviour
     [SerializeField] private TileBase arrowDownRightTile = null;
     [SerializeField] private TileBase arrowDownLeftTile = null;
 
-    [SerializeField] private GameObject displayCostsPrefab;
+    [SerializeField] private GameObject displayCostsPrefab = null;
 
-    private BinaryMinHeap<Node> openNodeList;
+    private List<Node> openNodeList;
     private HashSet<Node> closedNodeList;
 
     private bool findPathTriggered = false;
-
-    private bool pathFound = false;
 
     private void Awake()
     {
@@ -53,7 +51,7 @@ public class AStar : MonoBehaviour
         gridNodes = new GridNodes(gridWidth, gridHeight);
 
         // Create open node list
-        openNodeList = new BinaryMinHeap<Node>(gridWidth * gridHeight);
+        openNodeList = new List<Node>();
 
         // Create closed node list
         closedNodeList = new HashSet<Node>();
@@ -248,13 +246,17 @@ public class AStar : MonoBehaviour
     private IEnumerator FindShorrtestPath()
     {
         // Add start node to open list
-        openNodeList.AddItemToEndOfHeap(startNode);
+        openNodeList.Add(startNode);
 
         // Loop through open node list until empty
         while (openNodeList.Count > 0)
         {
+            // Sort List
+            openNodeList.Sort();
+
             //  current node = the node in the open list with the lowest fCost
-            Node currentNode = openNodeList.RemoveFirstItemFromHeap();
+            Node currentNode = openNodeList[0];
+            openNodeList.RemoveAt(0);
 
             // add current node to the closed list
             closedNodeList.Add(currentNode);
@@ -264,7 +266,6 @@ public class AStar : MonoBehaviour
 
             if (currentNode == targetNode)
             {
-                pathFound = true;
                 break;
             }
 
@@ -285,12 +286,6 @@ public class AStar : MonoBehaviour
 
         DisplayShortestPath();
 
-        do
-        {
-            yield return null;
-        } while (!Input.GetKeyDown(KeyCode.R));
-
-        SceneManager.LoadScene(0);
     }
 
     private void ColourClosedNodes()
@@ -315,7 +310,7 @@ public class AStar : MonoBehaviour
 
     private void ColourOpenNodes()
     {
-        foreach (Node node in openNodeList.items)
+        foreach (Node node in openNodeList)
         {
             if (node != null)
             {
@@ -349,21 +344,16 @@ public class AStar : MonoBehaviour
                     // Calculate new gcost for neighbour
                     int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, validNeighbourNode);
 
-                    if (newCostToNeighbour < validNeighbourNode.gCost || !openNodeList.ContainsItem(validNeighbourNode))
+                    if (newCostToNeighbour < validNeighbourNode.gCost || !openNodeList.Contains(validNeighbourNode))
                     {
                         validNeighbourNode.gCost = newCostToNeighbour;
                         validNeighbourNode.hCost = GetDistance(validNeighbourNode, targetNode);
 
                         validNeighbourNode.parentNode = currentNode;
 
-                        if (!openNodeList.ContainsItem(validNeighbourNode))
+                        if (!openNodeList.Contains(validNeighbourNode))
                         {
-                            openNodeList.AddItemToEndOfHeap(validNeighbourNode);
-                        }
-                        // else sort heap up since gcost thus fcost has reduced
-                        else
-                        {
-                            openNodeList.UpdateItem(validNeighbourNode);
+                            openNodeList.Add(validNeighbourNode);
                         }
                     }
                     // Display costs
@@ -413,7 +403,6 @@ public class AStar : MonoBehaviour
         if (node == startNode || node == targetNode || node.isObstacle == true)
             return;
 
-
         while (node.parentNode != null)
         {
             NodeDirection nodeDirection = GetNodeDirection(node, node.parentNode);
@@ -422,7 +411,6 @@ public class AStar : MonoBehaviour
 
             node = node.parentNode;
             tilePosition = new Vector3Int(node.gridPosition.x, node.gridPosition.y, 0);
-
         }
     }
 
@@ -466,7 +454,7 @@ public class AStar : MonoBehaviour
         return NodeDirection.Same;
     }
 
-    private void SetDirectionTile (Vector3Int tilePosition, NodeDirection nodeDirection)
+    private void SetDirectionTile(Vector3Int tilePosition, NodeDirection nodeDirection)
     {
         switch (nodeDirection)
         {
@@ -477,27 +465,27 @@ public class AStar : MonoBehaviour
             case NodeDirection.Down:
                 directionTilemap.SetTile(tilePosition, arrowDownTile);
                 break;
-                
+
             case NodeDirection.Right:
                 directionTilemap.SetTile(tilePosition, arrowRightTile);
                 break;
-                
+
             case NodeDirection.Left:
                 directionTilemap.SetTile(tilePosition, arrowLeftTile);
                 break;
-                
+
             case NodeDirection.UpLeft:
                 directionTilemap.SetTile(tilePosition, arrowUpLeftTile);
                 break;
-                
+
             case NodeDirection.UpRight:
                 directionTilemap.SetTile(tilePosition, arrowUpRightTile);
                 break;
-                
+
             case NodeDirection.DownRight:
                 directionTilemap.SetTile(tilePosition, arrowDownRightTile);
                 break;
-                
+
             case NodeDirection.DownLeft:
                 directionTilemap.SetTile(tilePosition, arrowDownLeftTile);
                 break;
@@ -554,13 +542,12 @@ public class AStar : MonoBehaviour
         {
             if (currentNode != startNode)
             {
+                // Set tile colour to blue
                 pathTilemap.SetTile(new Vector3Int(currentNode.gridPosition.x, currentNode.gridPosition.y, 0), blueTile);
             }
 
             currentNode = currentNode.parentNode;
         }
-
-        // Set tile colour to blue
     }
 
     private void ClearNode(Node node)

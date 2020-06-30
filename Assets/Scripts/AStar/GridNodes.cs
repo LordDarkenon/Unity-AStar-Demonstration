@@ -26,13 +26,6 @@ public class GridNodes
         }
     }
 
-    public int MaxGridSize
-    {
-        get
-        {
-            return width * height;
-        }
-    }
 
     public Node GetGridNode(int xPosition, int yPosition)
     {
