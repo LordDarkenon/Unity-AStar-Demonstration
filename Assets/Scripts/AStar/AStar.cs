@@ -85,7 +85,7 @@ public class AStar : MonoBehaviour
         if (startNode != null && targetNode != null && Input.GetKeyDown(KeyCode.B) && findPathTriggered == false)
         {
             findPathTriggered = true;
-            StartCoroutine(FindShorrtestPath());
+            StartCoroutine(FindShortestPath());
         }
 
         // Display path back to start
@@ -241,7 +241,7 @@ public class AStar : MonoBehaviour
     /// <summary>
     ///  Returns true if a path has been found
     /// </summary>
-    private IEnumerator FindShorrtestPath()
+    private IEnumerator FindShortestPath()
     {
         // Add start node to open list
         openNodeList.Add(startNode);
@@ -331,17 +331,20 @@ public class AStar : MonoBehaviour
                     // Calculate new gcost for neighbour
                     int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, validNeighbourNode);
 
-                    if (newCostToNeighbour < validNeighbourNode.gCost || !openNodeList.Contains(validNeighbourNode))
+                    bool isValidNeighbourNodeInOpenList = openNodeList.Contains(validNeighbourNode);
+
+                    if (newCostToNeighbour < validNeighbourNode.gCost || !isValidNeighbourNodeInOpenList)
                     {
                         validNeighbourNode.gCost = newCostToNeighbour;
                         validNeighbourNode.hCost = GetDistance(validNeighbourNode, targetNode);
 
                         validNeighbourNode.parentNode = currentNode;
 
-                        if (!openNodeList.Contains(validNeighbourNode))
+                        if (!isValidNeighbourNodeInOpenList)
                         {
                             openNodeList.Add(validNeighbourNode);
                         }
+
                     }
                     // Display costs
                     DisplayCosts(validNeighbourNode);
