@@ -288,43 +288,25 @@ public class AStar : MonoBehaviour
 
     private void ColourClosedNodes()
     {
-        //for (int x = 0; x < gridWidth; x++)
-        //{
-        //    for (int y = 0; y < gridHeight; y++)
-        //    {
-        //        Node node = gridNodes.GetGridNode(x, y);
-
-        //        if (node == targetNode || node == startNode || node.isObstacle)
-        //            continue;
-
-        //        if (closedNodeList.Contains(node))
-        //        {
-        //            // colour red
-        //            pathTilemap.SetTile(new Vector3Int(node.gridPosition.x, node.gridPosition.y, 0), redTile);
-        //        }
-        //    }
-        //}
-
         foreach(Node node in closedNodeList)
         {
+            if (node == targetNode || node == startNode)
+                continue;
+
             // colour red
             pathTilemap.SetTile(new Vector3Int(node.gridPosition.x, node.gridPosition.y, 0), redTile);
         }
-
     }
 
     private void ColourOpenNodes()
     {
         foreach (Node node in openNodeList)
         {
-            if (node != null)
-            {
-                if (node == targetNode || node == startNode || node.isObstacle)
+                if (node == targetNode || node == startNode)
                     continue;
 
                 // colour green
                 pathTilemap.SetTile(new Vector3Int(node.gridPosition.x, node.gridPosition.y, 0), greenTile);
-            }
         }
     }
 
